@@ -1,13 +1,19 @@
+const AUTH_KEY = 'thelvic_token';
+
 const API = {
+  authHeaders() {
+    const token = sessionStorage.getItem(AUTH_KEY);
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  },
   async get(path) {
-    const res = await fetch(`/api/${path}`);
+    const res = await fetch(`/api/${path}`, { headers: this.authHeaders() });
     if (!res.ok) throw new Error(await res.text());
     return res.json();
   },
   async post(path, body) {
     const res = await fetch(`/api/${path}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...this.authHeaders() },
       body: JSON.stringify(body)
     });
     if (!res.ok) throw new Error((await res.json()).error || 'Request failed');
@@ -16,15 +22,19 @@ const API = {
   async put(path, body) {
     const res = await fetch(`/api/${path}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...this.authHeaders() },
       body: JSON.stringify(body)
     });
     if (!res.ok) throw new Error('Request failed');
     return res.json();
   },
   async del(path) {
-    const res = await fetch(`/api/${path}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error('Request failed');
+    const res = await fetch(`/api/${path}`, { method: 'DELETE', headers: this.authHeaders() });
+    if (!res.ok) {
+      let msg = 'Request failed';
+      try { msg = (await res.json()).error || msg; } catch { /* ignore */ }
+      throw new Error(msg);
+    }
     return res.json();
   }
 };
@@ -43,7 +53,7 @@ function toast(msg) {
 }
 
 function fmt(n) {
-  return '$' + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return 'N' + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function fmtPct(n) {

@@ -41,14 +41,24 @@ function renderSummary(s) {
 async function loadDashboard() {
   const start = document.getElementById('startDate').value;
   const end = document.getElementById('endDate').value;
-  const data = await API.get(`dashboard?start=${start}&end=${end}`);
-  destroyCharts();
-  renderSummary(data.summary);
-  renderCharts(data);
-  renderMarginTable(data.contribution_margins);
+  try {
+    const data = await API.get(`dashboard?start=${start}&end=${end}`);
+    destroyCharts();
+    renderSummary(data.summary);
+    renderCharts(data);
+    renderMarginTable(data.contribution_margins);
+  } catch (err) {
+    console.error(err);
+    toast('Could not load dashboard. Check your login and try again.');
+  }
 }
 
 function renderCharts(data) {
+  if (typeof Chart === 'undefined') {
+    toast('Charts failed to load. Check your internet connection.');
+    return;
+  }
+
   const s = data.summary;
 
   charts.revenueCost = new Chart(document.getElementById('revenueCostChart'), {
@@ -56,7 +66,7 @@ function renderCharts(data) {
     data: {
       labels: ['Revenue', 'Material', 'Labour', 'Energy', 'Profit'],
       datasets: [{
-        label: 'Amount ($)',
+        label: 'Amount (N)',
         data: [s.revenue, s.material_cost, s.labour_cost, s.energy_cost, s.profit],
         backgroundColor: ['#2d7a4f', '#c45c26', '#5b7fa6', '#d4a017', s.profit >= 0 ? '#2d7a4f' : '#b33a3a']
       }]
@@ -148,8 +158,9 @@ function renderMarginTable(margins) {
   `).join('');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  setActiveNav('admin');
+document.addEventListener('DOMContentLoaded', async () => {
+  renderNav('admin');
+
   document.getElementById('startDate').value = monthStartISO();
   document.getElementById('endDate').value = todayISO();
 
@@ -172,5 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  await requireAuth();
   loadDashboard();
 });

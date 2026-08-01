@@ -1,5 +1,11 @@
 let brands = [];
 
+function updateProductionHeading(date) {
+  const heading = document.getElementById('todayProductionHeading');
+  if (!heading) return;
+  heading.textContent = date === todayISO() ? "Today's Production" : `Production for ${date}`;
+}
+
 async function loadBrands() {
   brands = await API.get('brands');
   const container = document.getElementById('prodInputs');
@@ -11,20 +17,20 @@ async function loadBrands() {
   `).join('') || '<p class="empty">No brands configured. Add brands on the Database page.</p>';
 }
 
-async function loadRecent() {
-  const rows = await API.get('production');
+async function loadTodayProduction() {
+  const date = document.getElementById('prodDate').value;
+  updateProductionHeading(date);
+  const rows = await API.get(`production?start=${date}&end=${date}`);
   const brandMap = Object.fromEntries(brands.map(b => [b.id, b]));
   const tbody = document.querySelector('#recentProduction tbody');
-  const recent = rows.slice(0, 30);
-  if (!recent.length) {
-    tbody.innerHTML = '<tr><td colspan="5" class="empty">No production recorded yet</td></tr>';
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="empty">No production recorded for this date</td></tr>';
     return;
   }
-  tbody.innerHTML = recent.map(r => {
+  tbody.innerHTML = rows.map(r => {
     const b = brandMap[r.brand_id] || { unit_cost: 0 };
     return `
       <tr>
-        <td>${r.date}</td>
         <td>${r.brand_name}</td>
         <td>${r.quantity}</td>
         <td>${fmt(r.quantity * (b.unit_cost || 0))}</td>
@@ -35,10 +41,12 @@ async function loadRecent() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  setActiveNav('production');
+  renderNav('production');
   document.getElementById('prodDate').value = todayISO();
   await loadBrands();
-  await loadRecent();
+  await loadTodayProduction();
+
+  document.getElementById('prodDate').addEventListener('change', loadTodayProduction);
 
   document.getElementById('saveProduction').addEventListener('click', async () => {
     const date = document.getElementById('prodDate').value;
@@ -51,7 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await API.post('production', { date, entries });
     document.querySelectorAll('.prod-qty').forEach(el => el.value = '');
     toast('Production saved!');
-    loadRecent();
+    loadTodayProduction();
   });
 
   document.querySelector('#recentProduction tbody').addEventListener('click', async e => {
@@ -59,6 +67,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!id) return;
     await API.del(`production/${id}`);
     toast('Production entry deleted');
-    loadRecent();
+    loadTodayProduction();
   });
 });

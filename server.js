@@ -1,11 +1,34 @@
 const express = require('express');
 const path = require('path');
+const crypto = require('crypto');
 const db = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const AUTH_PASSWORD = process.env.AUTH_PASSWORD || 'thelvic2026';
+const authTokens = new Set();
 
 app.use(express.json());
+
+function requireAuth(req, res, next) {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (token && authTokens.has(token)) return next();
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+app.post('/api/auth/login', (req, res) => {
+  if (req.body.password !== AUTH_PASSWORD) {
+    return res.status(401).json({ error: 'Incorrect password' });
+  }
+  const token = crypto.randomBytes(24).toString('hex');
+  authTokens.add(token);
+  res.json({ token });
+});
+
+app.get('/api/auth/check', requireAuth, (_req, res) => {
+  res.json({ ok: true });
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 function recipeCostPerUnit(brandId) {
@@ -48,7 +71,7 @@ app.get('/api/brands', (_req, res) => {
   res.json(brands.map(b => ({ ...b, unit_cost: recipeCostPerUnit(b.id) })));
 });
 
-app.post('/api/brands', (req, res) => {
+app.post('/api/brands', requireAuth, (req, res) => {
   const { name, price } = req.body;
   if (!name) return res.status(400).json({ error: 'Name is required' });
   try {
@@ -59,13 +82,13 @@ app.post('/api/brands', (req, res) => {
   }
 });
 
-app.put('/api/brands/:id', (req, res) => {
+app.put('/api/brands/:id', requireAuth, (req, res) => {
   const { name, price } = req.body;
   db.prepare('UPDATE brands SET name = ?, price = ? WHERE id = ?').run(name, price, req.params.id);
   res.json({ ok: true });
 });
 
-app.delete('/api/brands/:id', (req, res) => {
+app.delete('/api/brands/:id', requireAuth, (req, res) => {
   db.prepare('DELETE FROM brands WHERE id = ?').run(req.params.id);
   res.json({ ok: true });
 });
@@ -75,7 +98,7 @@ app.get('/api/materials', (_req, res) => {
   res.json(db.prepare('SELECT * FROM materials ORDER BY name').all());
 });
 
-app.post('/api/materials', (req, res) => {
+app.post('/api/materials', requireAuth, (req, res) => {
   const { name, unit, cost_per_unit } = req.body;
   if (!name) return res.status(400).json({ error: 'Name is required' });
   try {
@@ -87,20 +110,20 @@ app.post('/api/materials', (req, res) => {
   }
 });
 
-app.put('/api/materials/:id', (req, res) => {
+app.put('/api/materials/:id', requireAuth, (req, res) => {
   const { name, unit, cost_per_unit } = req.body;
   db.prepare('UPDATE materials SET name = ?, unit = ?, cost_per_unit = ? WHERE id = ?')
     .run(name, unit, cost_per_unit, req.params.id);
   res.json({ ok: true });
 });
 
-app.delete('/api/materials/:id', (req, res) => {
+app.delete('/api/materials/:id', requireAuth, (req, res) => {
   db.prepare('DELETE FROM materials WHERE id = ?').run(req.params.id);
   res.json({ ok: true });
 });
 
 // --- Recipes ---
-app.get('/api/recipes', (_req, res) => {
+app.get('/api/recipes', requireAuth, (_req, res) => {
   const rows = db.prepare(`
     SELECT r.*, b.name AS brand_name, m.name AS material_name, m.unit
     FROM recipes r
@@ -111,7 +134,7 @@ app.get('/api/recipes', (_req, res) => {
   res.json(rows);
 });
 
-app.post('/api/recipes', (req, res) => {
+app.post('/api/recipes', requireAuth, (req, res) => {
   const { brand_id, material_id, quantity } = req.body;
   try {
     const result = db.prepare('INSERT INTO recipes (brand_id, material_id, quantity) VALUES (?, ?, ?)')
@@ -122,23 +145,23 @@ app.post('/api/recipes', (req, res) => {
   }
 });
 
-app.put('/api/recipes/:id', (req, res) => {
+app.put('/api/recipes/:id', requireAuth, (req, res) => {
   const { quantity } = req.body;
   db.prepare('UPDATE recipes SET quantity = ? WHERE id = ?').run(quantity, req.params.id);
   res.json({ ok: true });
 });
 
-app.delete('/api/recipes/:id', (req, res) => {
+app.delete('/api/recipes/:id', requireAuth, (req, res) => {
   db.prepare('DELETE FROM recipes WHERE id = ?').run(req.params.id);
   res.json({ ok: true });
 });
 
 // --- Energy config ---
-app.get('/api/energy-config', (_req, res) => {
+app.get('/api/energy-config', requireAuth, (_req, res) => {
   res.json(getEnergyConfig());
 });
 
-app.put('/api/energy-config', (req, res) => {
+app.put('/api/energy-config', requireAuth, (req, res) => {
   const { diesel_cost_per_liter } = req.body;
   db.prepare('UPDATE energy_config SET diesel_cost_per_liter = ? WHERE id = 1').run(diesel_cost_per_liter || 0);
   res.json({ ok: true });
@@ -285,7 +308,7 @@ app.delete('/api/material-purchases/:id', (req, res) => {
 });
 
 // --- Dashboard ---
-app.get('/api/dashboard', (req, res) => {
+app.get('/api/dashboard', requireAuth, (req, res) => {
   const { start, end, groupBy } = req.query;
   if (!start || !end) return res.status(400).json({ error: 'start and end required' });
 

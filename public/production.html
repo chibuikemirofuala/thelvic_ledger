@@ -3,17 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Production Input — Bakery Books</title>
+  <title>Production Input — Thelvic Ledger</title>
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-  <nav>
-    <span class="logo">🍞 Bakery Books</span>
-    <a href="/" data-page="admin">Admin</a>
-    <a href="/sales.html" data-page="sales">Sales</a>
-    <a href="/production.html" data-page="production" class="active">Production</a>
-    <a href="/database.html" data-page="database">Database</a>
-  </nav>
+  <nav id="mainNav"></nav>
 
   <main>
     <h1>Daily Production</h1>
@@ -34,11 +28,11 @@
     </div>
 
     <div class="card">
-      <h2>Recent Production</h2>
+      <h2 id="todayProductionHeading">Today's Production</h2>
       <div style="overflow-x:auto">
         <table id="recentProduction">
           <thead>
-            <tr><th>Date</th><th>Brand</th><th>Quantity</th><th>Est. Material Cost</th><th></th></tr>
+            <tr><th>Brand</th><th>Quantity</th><th>Est. Material Cost</th><th></th></tr>
           </thead>
           <tbody></tbody>
         </table>
@@ -47,6 +41,7 @@
   </main>
 
   <script src="/js/common.js"></script>
+  <script src="/js/nav.js"></script>
   <script src="/js/production.js"></script>
 </body>
 </html>

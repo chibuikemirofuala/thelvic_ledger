@@ -1,6 +1,12 @@
 let brands = [];
 let materials = [];
 
+function updateSalesHeading(date) {
+  const heading = document.getElementById('todaySalesHeading');
+  if (!heading) return;
+  heading.textContent = date === todayISO() ? "Today's Sales" : `Sales for ${date}`;
+}
+
 async function loadBrands() {
   brands = await API.get('brands');
   const container = document.getElementById('salesInputs');
@@ -19,22 +25,22 @@ async function loadMaterials() {
     <div class="input-grid" style="grid-template-columns:2fr 1fr 1fr">
       <label>${m.name} (${m.unit})</label>
       <input type="number" min="0" step="0.01" data-material-id="${m.id}" data-field="qty" placeholder="Qty">
-      <input type="number" min="0" step="0.01" data-material-id="${m.id}" data-field="cost" placeholder="Cost ($)">
+      <input type="number" min="0" step="0.01" data-material-id="${m.id}" data-field="cost" placeholder="Cost (N)">
     </div>
   `).join('') || '<p class="empty">No materials configured.</p>';
 }
 
-async function loadRecentSales() {
-  const rows = await API.get('sales');
+async function loadTodaySales() {
+  const date = document.getElementById('saleDate').value;
+  updateSalesHeading(date);
+  const rows = await API.get(`sales?start=${date}&end=${date}`);
   const tbody = document.querySelector('#recentSales tbody');
-  const recent = rows.slice(0, 30);
-  if (!recent.length) {
-    tbody.innerHTML = '<tr><td colspan="5" class="empty">No sales recorded yet</td></tr>';
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="empty">No sales recorded for this date</td></tr>';
     return;
   }
-  tbody.innerHTML = recent.map(r => `
+  tbody.innerHTML = rows.map(r => `
     <tr>
-      <td>${r.date}</td>
       <td>${r.brand_name}</td>
       <td>${r.quantity}</td>
       <td>${fmt(r.quantity * r.price)}</td>
@@ -56,14 +62,17 @@ async function loadDailyCosts() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  setActiveNav('sales');
+  renderNav('sales');
   document.getElementById('saleDate').value = todayISO();
   await loadBrands();
   await loadMaterials();
-  await loadRecentSales();
+  await loadTodaySales();
   await loadDailyCosts();
 
-  document.getElementById('saleDate').addEventListener('change', loadDailyCosts);
+  document.getElementById('saleDate').addEventListener('change', () => {
+    loadDailyCosts();
+    loadTodaySales();
+  });
 
   document.getElementById('saveSales').addEventListener('click', async () => {
     const date = document.getElementById('saleDate').value;
@@ -76,7 +85,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await API.post('sales', { date, entries });
     document.querySelectorAll('.sale-qty').forEach(el => el.value = '');
     toast('Sales saved!');
-    loadRecentSales();
+    loadTodaySales();
   });
 
   document.getElementById('saveCosts').addEventListener('click', async () => {
@@ -111,6 +120,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!id) return;
     await API.del(`sales/${id}`);
     toast('Sale deleted');
-    loadRecentSales();
+    loadTodaySales();
   });
 });

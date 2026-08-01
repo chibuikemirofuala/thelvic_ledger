@@ -3,17 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Database — Bakery Books</title>
+  <title>Database — Thelvic Ledger</title>
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-  <nav>
-    <span class="logo">🍞 Bakery Books</span>
-    <a href="/" data-page="admin">Admin</a>
-    <a href="/sales.html" data-page="sales">Sales</a>
-    <a href="/production.html" data-page="production">Production</a>
-    <a href="/database.html" data-page="database" class="active">Database</a>
-  </nav>
+  <nav id="mainNav"></nav>
 
   <main>
     <h1>Database</h1>
@@ -26,14 +20,13 @@
       <button class="tab" data-tab="energy">Energy</button>
     </div>
 
-    <!-- Brands -->
     <div class="card tab-panel" id="panel-brands">
       <div class="section-header">
         <h2>Bread Brands &amp; Prices</h2>
       </div>
       <div class="form-row">
         <div><label>Name</label><input id="newBrandName" placeholder="e.g. Ciabatta"></div>
-        <div><label>Price ($)</label><input type="number" id="newBrandPrice" min="0" step="0.01" placeholder="0.00"></div>
+        <div><label>Price (N)</label><input type="number" id="newBrandPrice" min="0" step="0.01" placeholder="0.00"></div>
         <div><label>&nbsp;</label><button class="btn btn-primary" id="addBrand">Add Brand</button></div>
       </div>
       <table id="brandsTable">
@@ -42,13 +35,12 @@
       </table>
     </div>
 
-    <!-- Materials -->
     <div class="card tab-panel" id="panel-materials" style="display:none">
       <div class="section-header"><h2>Materials &amp; Unit Costs</h2></div>
       <div class="form-row">
         <div><label>Name</label><input id="newMatName" placeholder="e.g. Flour"></div>
         <div><label>Unit</label><input id="newMatUnit" placeholder="kg, g, L"></div>
-        <div><label>Cost/Unit ($)</label><input type="number" id="newMatCost" min="0" step="0.01"></div>
+        <div><label>Cost/Unit (N)</label><input type="number" id="newMatCost" min="0" step="0.01"></div>
         <div><label>&nbsp;</label><button class="btn btn-primary" id="addMaterial">Add Material</button></div>
       </div>
       <table id="materialsTable">
@@ -57,7 +49,6 @@
       </table>
     </div>
 
-    <!-- Recipes -->
     <div class="card tab-panel" id="panel-recipes" style="display:none">
       <div class="section-header"><h2>Recipes (materials per loaf)</h2></div>
       <div class="form-row">
@@ -81,12 +72,11 @@
       </table>
     </div>
 
-    <!-- Energy -->
     <div class="card tab-panel" id="panel-energy" style="display:none">
       <div class="section-header"><h2>Energy Configuration</h2></div>
       <div class="form-row">
         <div>
-          <label>Diesel Cost per Liter ($)</label>
+          <label>Diesel Cost per Liter (N)</label>
           <input type="number" id="dieselRate" min="0" step="0.01">
         </div>
         <div><label>&nbsp;</label><button class="btn btn-primary" id="saveEnergy">Save</button></div>
@@ -98,6 +88,8 @@
   </main>
 
   <script src="/js/common.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/auth.js"></script>
   <script src="/js/database.js"></script>
 </body>
 </html>
