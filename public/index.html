@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — Bakery Books</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <nav>
+    <span class="logo">🍞 Bakery Books</span>
+    <a href="/" data-page="admin" class="active">Admin</a>
+    <a href="/sales.html" data-page="sales">Sales</a>
+    <a href="/production.html" data-page="production">Production</a>
+    <a href="/database.html" data-page="database">Database</a>
+  </nav>
+
+  <main>
+    <h1>Admin Dashboard</h1>
+    <p class="subtitle">Sales, costs, and profit at a glance</p>
+
+    <div class="card">
+      <div class="form-row">
+        <div>
+          <label for="startDate">From</label>
+          <input type="date" id="startDate">
+        </div>
+        <div>
+          <label for="endDate">To</label>
+          <input type="date" id="endDate">
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button class="btn btn-primary" id="applyRange">Apply</button>
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button class="btn btn-secondary" data-preset="today">Today</button>
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button class="btn btn-secondary" data-preset="month">This Month</button>
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button class="btn btn-secondary" data-preset="all">All Time</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-4" id="summaryCards"></div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h2>Revenue vs Costs</h2>
+        <div class="chart-wrap"><canvas id="revenueCostChart"></canvas></div>
+      </div>
+      <div class="card">
+        <h2>Cost Breakdown</h2>
+        <div class="chart-wrap"><canvas id="costBreakdownChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h2>Sales Over Time</h2>
+        <div class="chart-wrap"><canvas id="salesChart"></canvas></div>
+      </div>
+      <div class="card">
+        <h2>Production vs Sales (units)</h2>
+        <div class="chart-wrap"><canvas id="prodSalesChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Contribution Margin by Brand</h2>
+      <div class="chart-wrap" style="height:320px"><canvas id="marginChart"></canvas></div>
+      <div style="margin-top:1rem;overflow-x:auto">
+        <table id="marginTable">
+          <thead>
+            <tr>
+              <th>Brand</th>
+              <th>Revenue</th>
+              <th>Material</th>
+              <th>Labour (alloc.)</th>
+              <th>Energy (alloc.)</th>
+              <th>Contribution</th>
+              <th>Margin %</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/common.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

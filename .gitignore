@@ -1,0 +1,5 @@
+node_modules/
+bakery.db
+bakery.db-wal
+bakery.db-shm
+.DS_Store

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Database — Bakery Books</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <nav>
+    <span class="logo">🍞 Bakery Books</span>
+    <a href="/" data-page="admin">Admin</a>
+    <a href="/sales.html" data-page="sales">Sales</a>
+    <a href="/production.html" data-page="production">Production</a>
+    <a href="/database.html" data-page="database" class="active">Database</a>
+  </nav>
+
+  <main>
+    <h1>Database</h1>
+    <p class="subtitle">Configure brands, materials, recipes, and energy rates</p>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="brands">Bread Brands</button>
+      <button class="tab" data-tab="materials">Materials</button>
+      <button class="tab" data-tab="recipes">Recipes</button>
+      <button class="tab" data-tab="energy">Energy</button>
+    </div>
+
+    <!-- Brands -->
+    <div class="card tab-panel" id="panel-brands">
+      <div class="section-header">
+        <h2>Bread Brands &amp; Prices</h2>
+      </div>
+      <div class="form-row">
+        <div><label>Name</label><input id="newBrandName" placeholder="e.g. Ciabatta"></div>
+        <div><label>Price ($)</label><input type="number" id="newBrandPrice" min="0" step="0.01" placeholder="0.00"></div>
+        <div><label>&nbsp;</label><button class="btn btn-primary" id="addBrand">Add Brand</button></div>
+      </div>
+      <table id="brandsTable">
+        <thead><tr><th>Name</th><th>Price</th><th>Est. Material/Unit</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Materials -->
+    <div class="card tab-panel" id="panel-materials" style="display:none">
+      <div class="section-header"><h2>Materials &amp; Unit Costs</h2></div>
+      <div class="form-row">
+        <div><label>Name</label><input id="newMatName" placeholder="e.g. Flour"></div>
+        <div><label>Unit</label><input id="newMatUnit" placeholder="kg, g, L"></div>
+        <div><label>Cost/Unit ($)</label><input type="number" id="newMatCost" min="0" step="0.01"></div>
+        <div><label>&nbsp;</label><button class="btn btn-primary" id="addMaterial">Add Material</button></div>
+      </div>
+      <table id="materialsTable">
+        <thead><tr><th>Name</th><th>Unit</th><th>Cost/Unit</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Recipes -->
+    <div class="card tab-panel" id="panel-recipes" style="display:none">
+      <div class="section-header"><h2>Recipes (materials per loaf)</h2></div>
+      <div class="form-row">
+        <div>
+          <label>Brand</label>
+          <select id="recipeBrand"></select>
+        </div>
+        <div>
+          <label>Material</label>
+          <select id="recipeMaterial"></select>
+        </div>
+        <div>
+          <label>Quantity</label>
+          <input type="number" id="recipeQty" min="0" step="0.001" placeholder="0">
+        </div>
+        <div><label>&nbsp;</label><button class="btn btn-primary" id="addRecipe">Add to Recipe</button></div>
+      </div>
+      <table id="recipesTable">
+        <thead><tr><th>Brand</th><th>Material</th><th>Qty</th><th>Unit</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Energy -->
+    <div class="card tab-panel" id="panel-energy" style="display:none">
+      <div class="section-header"><h2>Energy Configuration</h2></div>
+      <div class="form-row">
+        <div>
+          <label>Diesel Cost per Liter ($)</label>
+          <input type="number" id="dieselRate" min="0" step="0.01">
+        </div>
+        <div><label>&nbsp;</label><button class="btn btn-primary" id="saveEnergy">Save</button></div>
+      </div>
+      <p style="font-size:0.85rem;color:var(--muted);margin-top:0.5rem">
+        Daily diesel usage (liters) is entered on the Sales page.
+      </p>
+    </div>
+  </main>
+
+  <script src="/js/common.js"></script>
+  <script src="/js/database.js"></script>
+</body>
+</html>
